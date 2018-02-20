@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blacklightcms/recurly"
+	"github.com/portofinolabs/recurly"
 )
 
 // TestPlansEncoding ensures structs are encoded to XML properly.

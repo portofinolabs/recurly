@@ -6,7 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/blacklightcms/recurly"
+	"github.com/portofinolabs/recurly"
 )
 
 // Webhook notification constants.
@@ -15,21 +15,32 @@ const (
 	BillingInfoUpdated = "billing_info_updated_notification"
 
 	// Subscription notifications.
-	NewSubscription      = "new_subscription_notification"
-	UpdatedSubscription  = "updated_subscription_notification"
-	RenewedSubscription  = "renewed_subscription_notification"
-	ExpiredSubscription  = "expired_subscription_notification"
-	CanceledSubscription = "canceled_subscription_notification"
+	NewSubscription         = "new_subscription_notification"
+	UpdatedSubscription     = "updated_subscription_notification"
+	RenewedSubscription     = "renewed_subscription_notification"
+	ExpiredSubscription     = "expired_subscription_notification"
+	CanceledSubscription    = "canceled_subscription_notification"
+	ReactivatedSubscription = "reactivated_subcription_notification"
 
 	// Invoice notifications.
-	NewInvoice     = "new_invoice_notification"
-	PastDueInvoice = "past_due_invoice_notification"
+	NewInvoice        = "new_invoice_notification"
+	PastDueInvoice    = "past_due_invoice_notification"
+	ClosedInvoice     = "closed_invoiced_notification"
+	ProcessingInvoice = "processing_invoice_notification"
+
+	// Shipping Address notifications.
+	NewShippingAddress     = "new_shipping_address_notification"
+	DeletedShippingAddress = "deleted_shipping_address_notification"
+	UpdatedShippingAddress = "updated_shipping_address_notification"
 
 	// Payment notifications.
 	SuccessfulPayment = "successful_payment_notification"
 	FailedPayment     = "failed_payment_notification"
 	VoidPayment       = "void_payment_notification"
 	SuccessfulRefund  = "successful_refund_notification"
+
+	// Dunning Event notifications.
+	NewDunningEvent = "new_dunning_event_notification"
 )
 
 type notificationName struct {
@@ -83,6 +94,28 @@ type Invoice struct {
 	ClosedAt            recurly.NullTime `xml:"closed_at,omitempty"`
 	NetTerms            recurly.NullInt  `xml:"net_terms,omitempty"`
 	CollectionMethod    string           `xml:"collection_method,omitempty"`
+}
+
+// Invoice represents the invoice object sent in webhooks.
+type ShippingAdddress struct {
+	XMLName     xml.Name `xml:"invoice,omitempty"`
+	ID          int      `xml:"id,omitempty"`
+	Nickname    string   `xml:"nickname,omitempty"`
+	FirstName   string   `xml:"first_name,omitempty"`
+	LastName    string   `xml:"last_name,omitempty"`
+	CompanyName string   `xml:"company_name,omitempty"`
+	VATNumber   string   `xml:"vat_number,omitempty"`
+	Street1     string   `xml:"street1,omitempty"`
+	Street2     string   `xml:"street2,omitempty"`
+	City        string   `xml:"city,omitemtpy"`
+	State       string   `xml:"state,omitempty"`
+	Zip         string   `xml:"zip,omitempty"`
+	Country     string   `xml:"country,omitempty"`
+	Email       string   `xml:"email,omitempty"`
+	Phone       string   `xml:"phone,omitempty"`
+}
+
+type DunningEvent struct {
 }
 
 // Transaction constants.
@@ -153,6 +186,11 @@ type (
 		Account Account `xml:"account"`
 		Invoice Invoice `xml:"invoice"`
 	}
+
+	ProcessingInvoiceNotification struct {
+		Account Account `xml:"account"`
+		Invoice Invoice `xml:"invoice"`
+	}
 )
 
 // Payment types.
@@ -185,6 +223,31 @@ type (
 		Transaction Transaction `xml:"transaction"`
 	}
 )
+
+// Shipping Address types.
+type (
+	NewShippingAddressNotification struct {
+		Account          Account          `xml:"account"`
+		ShippingAdddress ShippingAdddress `xml:"shipping_address"`
+	}
+
+	UpdatedShippingAddressNotification struct {
+		Account          Account          `xml:"account"`
+		ShippingAdddress ShippingAdddress `xml:"shipping_address"`
+	}
+
+	DeletedShippingAddressNotification struct {
+		Account          Account          `xml:"account"`
+		ShippingAdddress ShippingAdddress `xml:"shipping_address"`
+	}
+)
+
+type NewDunningEventNotification struct {
+	Account     Account              `xml:"account"`
+	Invoice     Invoice              `xml:"invoice"`
+	Subsription recurly.Subscription `xml:"subscription"`
+	Transaction Transaction          `xml:"transaction"`
+}
 
 // ErrUnknownNotification is used when the incoming webhook does not match a
 // predefined notification type. It implements the error interface.
@@ -236,6 +299,8 @@ func Parse(r io.Reader) (interface{}, error) {
 		dst = &NewInvoiceNotification{}
 	case PastDueInvoice:
 		dst = &PastDueInvoiceNotification{}
+	case ProcessingInvoice:
+		dst = &ProcessingInvoiceNotification{}
 	case SuccessfulPayment:
 		dst = &SuccessfulPaymentNotification{}
 	case FailedPayment:
@@ -244,6 +309,14 @@ func Parse(r io.Reader) (interface{}, error) {
 		dst = &VoidPaymentNotification{}
 	case SuccessfulRefund:
 		dst = &SuccessfulRefundNotification{}
+	case NewShippingAddress:
+		dst = &NewShippingAddressNotification{}
+	case UpdatedShippingAddress:
+		dst = &UpdatedShippingAddressNotification{}
+	case DeletedShippingAddress:
+		dst = &DeletedShippingAddressNotification{}
+	case NewDunningEvent:
+		dst = &NewDunningEventNotification{}
 	default:
 		return nil, ErrUnknownNotification{name: n.XMLName.Local}
 	}

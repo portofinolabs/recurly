@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blacklightcms/recurly"
+	"github.com/portofinolabs/recurly"
 )
 
 // TestTransactionEncoding ensures structs are encoded to XML properly.

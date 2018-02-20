@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blacklightcms/recurly"
-	"github.com/blacklightcms/recurly/webhooks"
+	"github.com/portofinolabs/recurly"
+	"github.com/portofinolabs/recurly/webhooks"
 )
 
 func TestParse_BillingInfoUpdatedNotification(t *testing.T) {

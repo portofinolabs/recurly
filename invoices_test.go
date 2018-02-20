@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blacklightcms/recurly"
+	"github.com/portofinolabs/recurly"
 )
 
 func TestInvoices_List(t *testing.T) {
