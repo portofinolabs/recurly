@@ -47,3 +47,14 @@ func (n NullBool) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 
 	return nil
 }
+
+// MarshalJSON
+func (n NullBool) MarshalJSON() ([]byte, error) {
+	if !n.Valid {
+		return []byte(`nil`), nil
+	}
+	if n.Bool {
+		return []byte("true"), nil
+	}
+	return []byte("false"), nil
+}

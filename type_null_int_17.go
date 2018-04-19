@@ -2,7 +2,10 @@
 
 package recurly
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+)
 
 // NullInt is used for properly handling int types that could be null.
 type NullInt struct {
@@ -34,4 +37,13 @@ func (n NullInt) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	}
 
 	return nil
+}
+
+// MarshalJSON
+func (n NullInt) MarshalJSON() ([]byte, error) {
+	if n.Valid {
+		return []byte(fmt.Sprintf("%d", n.Int)), nil
+	}
+
+	return []byte(`null`), nil
 }

@@ -63,3 +63,12 @@ func (t NullTime) String() string {
 
 	return ""
 }
+
+// MarshalJSON
+func (t NullTime) MarshalJSON() ([]byte, error) {
+	if t.Time != nil {
+		return []byte(`"` + t.Time.UTC().Format(DateTimeFormat) + `"`), nil
+	}
+
+	return []byte(`null`), nil
+}

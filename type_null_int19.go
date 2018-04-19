@@ -4,6 +4,7 @@ package recurly
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strings"
 )
 
@@ -40,4 +41,13 @@ func (n NullInt) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		e.EncodeElement(n.Int, start)
 	}
 	return nil
+}
+
+// MarshalJSON
+func (n NullInt) MarshalJSON() ([]byte, error) {
+	if n.Valid {
+		return []byte(fmt.Sprintf("%d", n.Int)), nil
+	}
+
+	return []byte(`null`), nil
 }

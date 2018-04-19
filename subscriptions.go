@@ -40,31 +40,31 @@ const (
 
 // Subscription represents an individual subscription.
 type Subscription struct {
-	XMLName                xml.Name             `xml:"subscription"`
-	Plan                   NestedPlan           `xml:"plan,omitempty"`
-	AccountCode            string               `xml:"-"`
-	InvoiceNumber          int                  `xml:"-"`
-	UUID                   string               `xml:"uuid,omitempty"`
-	State                  string               `xml:"state,omitempty"`
-	UnitAmountInCents      int                  `xml:"unit_amount_in_cents,omitempty"`
-	Currency               string               `xml:"currency,omitempty"`
-	Quantity               int                  `xml:"quantity,omitempty"`
-	TotalAmountInCents     int                  `xml:"total_amount_in_cents,omitempty"`
-	ActivatedAt            NullTime             `xml:"activated_at,omitempty"`
-	CanceledAt             NullTime             `xml:"canceled_at,omitempty"`
-	ExpiresAt              NullTime             `xml:"expires_at,omitempty"`
-	CurrentPeriodStartedAt NullTime             `xml:"current_period_started_at,omitempty"`
-	CurrentPeriodEndsAt    NullTime             `xml:"current_period_ends_at,omitempty"`
-	TrialStartedAt         NullTime             `xml:"trial_started_at,omitempty"`
-	TrialEndsAt            NullTime             `xml:"trial_ends_at,omitempty"`
-	TaxInCents             int                  `xml:"tax_in_cents,omitempty"`
-	TaxType                string               `xml:"tax_type,omitempty"`
-	TaxRegion              string               `xml:"tax_region,omitempty"`
-	TaxRate                float64              `xml:"tax_rate,omitempty"`
-	PONumber               string               `xml:"po_number,omitempty"`
-	NetTerms               NullInt              `xml:"net_terms,omitempty"`
-	SubscriptionAddOns     []SubscriptionAddOn  `xml:"subscription_add_ons>subscription_add_on,omitempty"`
-	PendingSubscription    *PendingSubscription `xml:"pending_subscription,omitempty"`
+	XMLName                xml.Name             `xml:"subscription" json:"-"`
+	Plan                   NestedPlan           `xml:"plan,omitempty" json:"plan"`
+	AccountCode            string               `xml:"-" json:"-"`
+	InvoiceNumber          int                  `xml:"-" json:"-"`
+	UUID                   string               `xml:"uuid,omitempty" json:"uuid"`
+	State                  string               `xml:"state,omitempty" json:"state"`
+	UnitAmountInCents      int                  `xml:"unit_amount_in_cents,omitempty" json:"unit_amount_in_cents"`
+	Currency               string               `xml:"currency,omitempty" json:"currency"`
+	Quantity               int                  `xml:"quantity,omitempty" json:"quantity"`
+	TotalAmountInCents     int                  `xml:"total_amount_in_cents,omitempty" json:"total_amount_in_cents"`
+	ActivatedAt            NullTime             `xml:"activated_at,omitempty" json:"activated_at"`
+	CanceledAt             NullTime             `xml:"canceled_at,omitempty" json:"canceled_at"`
+	ExpiresAt              NullTime             `xml:"expires_at,omitempty" json:"expires_at"`
+	CurrentPeriodStartedAt NullTime             `xml:"current_period_started_at,omitempty" json:"current_period_started_at"`
+	CurrentPeriodEndsAt    NullTime             `xml:"current_period_ends_at,omitempty" json:"current_period_ends_at"`
+	TrialStartedAt         NullTime             `xml:"trial_started_at,omitempty" json:"trial_started_at"`
+	TrialEndsAt            NullTime             `xml:"trial_ends_at,omitempty" json:"trial_ends_at"`
+	TaxInCents             int                  `xml:"tax_in_cents,omitempty" json:"tax_in_cents"`
+	TaxType                string               `xml:"tax_type,omitempty" json:"tax_type"`
+	TaxRegion              string               `xml:"tax_region,omitempty" json:"tax_region"`
+	TaxRate                float64              `xml:"tax_rate,omitempty" json:"tax_rate"`
+	PONumber               string               `xml:"po_number,omitempty" json:"po_number"`
+	NetTerms               NullInt              `xml:"net_terms,omitempty" json:"net_terms"`
+	SubscriptionAddOns     []SubscriptionAddOn  `xml:"subscription_add_ons>subscription_add_on,omitempty" json:"-"`
+	PendingSubscription    *PendingSubscription `xml:"pending_subscription,omitempty" json:"pending_subscription,omitempty"`
 }
 
 // UnmarshalXML unmarshals transactions and handles intermediary state during unmarshaling
@@ -145,8 +145,8 @@ func (s Subscription) MakeUpdate() UpdateSubscription {
 }
 
 type NestedPlan struct {
-	Code string `xml:"plan_code,omitempty"`
-	Name string `xml:"name,omitempty"`
+	Code string `xml:"plan_code,omitempty" json:"plan_code"`
+	Name string `xml:"name,omitempty" json:"name"`
 }
 
 // SubscriptionAddOn are add ons to subscriptions.
@@ -162,9 +162,10 @@ type SubscriptionAddOn struct {
 // PendingSubscription are updates to the subscription or subscription add ons that
 // will be made on the next renewal.
 type PendingSubscription struct {
-	XMLName            xml.Name            `xml:"pending_subscription"`
-	Plan               NestedPlan          `xml:"plan,omitempty"`
-	Quantity           int                 `xml:"quantity,omitempty"` // Quantity of subscriptions
+	XMLName            xml.Name            `xml:"pending_subscription" json:"-"`
+	Plan               NestedPlan          `xml:"plan,omitempty" json:"plan,omitempty"`
+	Quantity           int                 `xml:"quantity,omitempty" json:"quantity,omitempty"` // Quantity of subscriptions
+	Price              int                 `xml:"unit_amount_in_cents,omitempty" json:"unit_amount_in_cents,omitempty"`
 	SubscriptionAddOns []SubscriptionAddOn `xml:"subscription_add_ons>subscription_add_on,omitempty"`
 }
 

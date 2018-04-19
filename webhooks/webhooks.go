@@ -12,7 +12,10 @@ import (
 // Webhook notification constants.
 const (
 	// Account notifications.
+	NewAccount         = "new_account_notification"
+	UpdatedAccount     = "updated_account_notification"
 	BillingInfoUpdated = "billing_info_updated_notification"
+	ReactivedAccount   = "reactivated_account_notification"
 
 	// Subscription notifications.
 	NewSubscription         = "new_subscription_notification"
@@ -25,7 +28,7 @@ const (
 	// Invoice notifications.
 	NewInvoice        = "new_invoice_notification"
 	PastDueInvoice    = "past_due_invoice_notification"
-	ClosedInvoice     = "closed_invoiced_notification"
+	ClosedInvoice     = "closed_invoice_notification"
 	ProcessingInvoice = "processing_invoice_notification"
 
 	// Shipping Address notifications.
@@ -49,70 +52,70 @@ type notificationName struct {
 
 // Account represents the account object sent in webhooks.
 type Account struct {
-	XMLName     xml.Name `xml:"account"`
-	Code        string   `xml:"account_code,omitempty"`
-	Username    string   `xml:"username,omitempty"`
-	Email       string   `xml:"email,omitempty"`
-	FirstName   string   `xml:"first_name,omitempty"`
-	LastName    string   `xml:"last_name,omitempty"`
-	CompanyName string   `xml:"company_name,omitempty"`
-	Phone       string   `xml:"phone,omitempty"`
+	XMLName     xml.Name `xml:"account" json:"-"`
+	Code        string   `xml:"account_code,omitempty" json:"account_code"`
+	Username    string   `xml:"username,omitempty" json:"username"`
+	Email       string   `xml:"email,omitempty" json:"email"`
+	FirstName   string   `xml:"first_name,omitempty" json:"first_name"`
+	LastName    string   `xml:"last_name,omitempty" json:"last_name"`
+	CompanyName string   `xml:"company_name,omitempty" json:"company"`
+	Phone       string   `xml:"phone,omitempty" json:"phone"`
 }
 
 // Transaction represents the transaction object sent in webhooks.
 type Transaction struct {
-	XMLName           xml.Name         `xml:"transaction"`
-	UUID              string           `xml:"id,omitempty"`
-	InvoiceNumber     int              `xml:"invoice_number,omitempty"`
-	SubscriptionUUID  string           `xml:"subscription_id,omitempty"`
-	Action            string           `xml:"action,omitempty"`
-	AmountInCents     int              `xml:"amount_in_cents,omitempty"`
-	Status            string           `xml:"status,omitempty"`
-	Message           string           `xml:"message,omitempty"`
-	GatewayErrorCodes string           `xml:"gateway_error_codes,omitempty"`
-	FailureType       string           `xml:"failure_type,omitempty"`
-	Reference         string           `xml:"reference,omitempty"`
-	Source            string           `xml:"source,omitempty"`
-	Test              recurly.NullBool `xml:"test,omitempty"`
-	Voidable          recurly.NullBool `xml:"voidable,omitempty"`
-	Refundable        recurly.NullBool `xml:"refundable,omitempty"`
+	XMLName           xml.Name         `xml:"transaction" json:"-"`
+	UUID              string           `xml:"id,omitempty" json:"uuid"`
+	InvoiceNumber     int              `xml:"invoice_number,omitempty" json:"invoice_number"`
+	SubscriptionUUID  string           `xml:"subscription_id,omitempty" json:"subscription_uuid,omitempty"`
+	Action            string           `xml:"action,omitempty" json:"action"`
+	AmountInCents     int              `xml:"amount_in_cents,omitempty" json:"amount_in_cents"`
+	Status            string           `xml:"status,omitempty" json:"status"`
+	Message           string           `xml:"message,omitempty" json:"message"`
+	GatewayErrorCodes string           `xml:"gateway_error_codes,omitempty" json:"gateway_error_codes"`
+	FailureType       string           `xml:"failure_type,omitempty" json:"failure_type"`
+	Reference         string           `xml:"reference,omitempty" json:"reference"`
+	Source            string           `xml:"source,omitempty" json:"source"`
+	Test              recurly.NullBool `xml:"test,omitempty" json:"test"`
+	Voidable          recurly.NullBool `xml:"voidable,omitempty" json:"voidable"`
+	Refundable        recurly.NullBool `xml:"refundable,omitempty" json:"refundable"`
 }
 
 // Invoice represents the invoice object sent in webhooks.
 type Invoice struct {
-	XMLName             xml.Name         `xml:"invoice,omitempty"`
-	SubscriptionUUID    string           `xml:"subscription_id,omitempty"`
-	UUID                string           `xml:"uuid,omitempty"`
-	State               string           `xml:"state,omitempty"`
-	InvoiceNumberPrefix string           `xml:"invoice_number_prefix,omitempty"`
-	InvoiceNumber       int              `xml:"invoice_number,omitempty"`
-	PONumber            string           `xml:"po_number,omitempty"`
-	VATNumber           string           `xml:"vat_number,omitempty"`
-	TotalInCents        int              `xml:"total_in_cents,omitempty"`
-	Currency            string           `xml:"currency,omitempty"`
-	CreatedAt           recurly.NullTime `xml:"date,omitempty"`
-	ClosedAt            recurly.NullTime `xml:"closed_at,omitempty"`
-	NetTerms            recurly.NullInt  `xml:"net_terms,omitempty"`
-	CollectionMethod    string           `xml:"collection_method,omitempty"`
+	XMLName             xml.Name         `xml:"invoice,omitempty" json:"-"`
+	SubscriptionUUID    string           `xml:"subscription_id,omitempty" json:"subscription_uuid,omitempty"`
+	UUID                string           `xml:"uuid,omitempty" json:"uuid"`
+	State               string           `xml:"state,omitempty" json:"state"`
+	InvoiceNumberPrefix string           `xml:"invoice_number_prefix,omitempty" json:"invoice_number_prefix"`
+	InvoiceNumber       int              `xml:"invoice_number,omitempty" json:"invoice_number"`
+	PONumber            string           `xml:"po_number,omitempty" json:"vat_number"`
+	VATNumber           string           `xml:"vat_number,omitempty" json:"vat_number"`
+	TotalInCents        int              `xml:"total_in_cents,omitempty" json:"total_in_cents"`
+	Currency            string           `xml:"currency,omitempty" json:"currency"`
+	CreatedAt           recurly.NullTime `xml:"date,omitempty" json:"created_at"`
+	ClosedAt            recurly.NullTime `xml:"closed_at,omitempty" json:"closed_at"`
+	NetTerms            recurly.NullInt  `xml:"net_terms,omitempty" json:"net_terms"`
+	CollectionMethod    string           `xml:"collection_method,omitempty" json:"collection_method"`
 }
 
-// Invoice represents the invoice object sent in webhooks.
+// ShippingAdddress represents the shipping address object sent in webhooks.
 type ShippingAdddress struct {
-	XMLName     xml.Name `xml:"invoice,omitempty"`
-	ID          int      `xml:"id,omitempty"`
-	Nickname    string   `xml:"nickname,omitempty"`
-	FirstName   string   `xml:"first_name,omitempty"`
-	LastName    string   `xml:"last_name,omitempty"`
-	CompanyName string   `xml:"company_name,omitempty"`
-	VATNumber   string   `xml:"vat_number,omitempty"`
-	Street1     string   `xml:"street1,omitempty"`
-	Street2     string   `xml:"street2,omitempty"`
-	City        string   `xml:"city,omitemtpy"`
-	State       string   `xml:"state,omitempty"`
-	Zip         string   `xml:"zip,omitempty"`
-	Country     string   `xml:"country,omitempty"`
-	Email       string   `xml:"email,omitempty"`
-	Phone       string   `xml:"phone,omitempty"`
+	XMLName     xml.Name `xml:"shipping_address,omitempty" json:"-"`
+	ID          int      `xml:"id,omitempty" json:"id"`
+	Nickname    string   `xml:"nickname,omitempty" json:"nickname"`
+	FirstName   string   `xml:"first_name,omitempty" json:"first_name"`
+	LastName    string   `xml:"last_name,omitempty" json:"last_name"`
+	CompanyName string   `xml:"company_name,omitempty" json:"company"`
+	VATNumber   string   `xml:"vat_number,omitempty" json:"vat_number"`
+	Street1     string   `xml:"street1,omitempty" json:"address_1"`
+	Street2     string   `xml:"street2,omitempty" json:"address_2"`
+	City        string   `xml:"city,omitemtpy" json:"city"`
+	State       string   `xml:"state,omitempty" json:"state"`
+	Zip         string   `xml:"zip,omitempty" json:"zip"`
+	Country     string   `xml:"country,omitempty" json:"country"`
+	Email       string   `xml:"email,omitempty" json:"email"`
+	Phone       string   `xml:"phone,omitempty" json:"phone"`
 }
 
 type DunningEvent struct {
@@ -126,10 +129,21 @@ const (
 
 // Account types.
 type (
+	NewAccountNotification struct {
+		Account Account `xml:"account" json:"account"`
+	}
+
+	UpdatedAccountNotification struct {
+		Account Account `xml:"account" json:"account"`
+	}
+
+	ReactivatedAccountNotification struct {
+		Account Account `xml:"account" json:"account"`
+	}
 	// BillingInfoUpdatedNotification is sent when a customer updates or adds billing information.
 	// https://dev.recurly.com/page/webhooks#section-updated-billing-information
 	BillingInfoUpdatedNotification struct {
-		Account Account `xml:"account"`
+		Account Account `xml:"account" json:"account"`
 	}
 )
 
@@ -138,36 +152,36 @@ type (
 	// NewSubscriptionNotification is sent when a new subscription is created.
 	// https://dev.recurly.com/page/webhooks#section-new-subscription
 	NewSubscriptionNotification struct {
-		Account      Account              `xml:"account"`
-		Subscription recurly.Subscription `xml:"subscription"`
+		Account      Account              `xml:"account" json:"account"`
+		Subscription recurly.Subscription `xml:"subscription" json:"subscription"`
 	}
 
 	// UpdatedSubscriptionNotification is sent when a subscription is upgraded or downgraded.
 	// https://dev.recurly.com/page/webhooks#section-updated-subscription
 	UpdatedSubscriptionNotification struct {
-		Account      Account              `xml:"account"`
-		Subscription recurly.Subscription `xml:"subscription"`
+		Account      Account              `xml:"account" json:"account"`
+		Subscription recurly.Subscription `xml:"subscription" json:"subscription"`
 	}
 
 	// RenewedSubscriptionNotification is sent when a subscription renew.
 	// https://dev.recurly.com/page/webhooks#section-renewed-subscription
 	RenewedSubscriptionNotification struct {
-		Account      Account              `xml:"account"`
-		Subscription recurly.Subscription `xml:"subscription"`
+		Account      Account              `xml:"account" json:"account"`
+		Subscription recurly.Subscription `xml:"subscription" json:"subscription"`
 	}
 
 	// ExpiredSubscriptionNotification is sent when a subscription is no longer valid.
 	// https://dev.recurly.com/v2.4/page/webhooks#section-expired-subscription
 	ExpiredSubscriptionNotification struct {
-		Account      Account              `xml:"account"`
-		Subscription recurly.Subscription `xml:"subscription"`
+		Account      Account              `xml:"account" json:"account"`
+		Subscription recurly.Subscription `xml:"subscription" json:"subscription"`
 	}
 
 	// CanceledSubscriptionNotification is sent when a subscription is canceled.
 	// https://dev.recurly.com/page/webhooks#section-canceled-subscription
 	CanceledSubscriptionNotification struct {
-		Account      Account              `xml:"account"`
-		Subscription recurly.Subscription `xml:"subscription"`
+		Account      Account              `xml:"account" json:"account"`
+		Subscription recurly.Subscription `xml:"subscription" json:"subscription"`
 	}
 )
 
@@ -176,20 +190,25 @@ type (
 	// NewInvoiceNotification is sent when an invoice generated.
 	// https://dev.recurly.com/page/webhooks#section-new-invoice
 	NewInvoiceNotification struct {
-		Account Account `xml:"account"`
-		Invoice Invoice `xml:"invoice"`
+		Account Account `xml:"account" json:"account"`
+		Invoice Invoice `xml:"invoice" json:"invoice"`
 	}
 
 	// PastDueInvoiceNotification is sent when an invoice is past due.
 	// https://dev.recurly.com/v2.4/page/webhooks#section-past-due-invoice
 	PastDueInvoiceNotification struct {
-		Account Account `xml:"account"`
-		Invoice Invoice `xml:"invoice"`
+		Account Account `xml:"account" json:"account"`
+		Invoice Invoice `xml:"invoice" json:"invoice"`
 	}
 
 	ProcessingInvoiceNotification struct {
-		Account Account `xml:"account"`
-		Invoice Invoice `xml:"invoice"`
+		Account Account `xml:"account" json:"account"`
+		Invoice Invoice `xml:"invoice" json:"invoice"`
+	}
+
+	ClosedInvoiceNotification struct {
+		Account Account `xml:"account" json:"account"`
+		Invoice Invoice `xml:"invoice" json:"invoice"`
 	}
 )
 
@@ -198,55 +217,55 @@ type (
 	// SuccessfulPaymentNotification is sent when a payment is successful.
 	// https://dev.recurly.com/v2.4/page/webhooks#section-successful-payment
 	SuccessfulPaymentNotification struct {
-		Account     Account     `xml:"account"`
-		Transaction Transaction `xml:"transaction"`
+		Account     Account     `xml:"account" json:"account"`
+		Transaction Transaction `xml:"transaction" json:"transaction"`
 	}
 
 	// FailedPaymentNotification is sent when a payment fails.
 	// https://dev.recurly.com/v2.4/page/webhooks#section-failed-payment
 	FailedPaymentNotification struct {
-		Account     Account     `xml:"account"`
-		Transaction Transaction `xml:"transaction"`
+		Account     Account     `xml:"account" json:"account"`
+		Transaction Transaction `xml:"transaction" json:"transaction"`
 	}
 
 	// VoidPaymentNotification is sent when a successful payment is voided.
 	// https://dev.recurly.com/page/webhooks#section-void-payment
 	VoidPaymentNotification struct {
-		Account     Account     `xml:"account"`
-		Transaction Transaction `xml:"transaction"`
+		Account     Account     `xml:"account" json:"account"`
+		Transaction Transaction `xml:"transaction" json:"transaction"`
 	}
 
 	// SuccessfulRefundNotification is sent when an amount is refunded.
 	// https://dev.recurly.com/page/webhooks#section-successful-refund
 	SuccessfulRefundNotification struct {
-		Account     Account     `xml:"account"`
-		Transaction Transaction `xml:"transaction"`
+		Account     Account     `xml:"account" json:"account"`
+		Transaction Transaction `xml:"transaction" json:"transaction"`
 	}
 )
 
 // Shipping Address types.
 type (
 	NewShippingAddressNotification struct {
-		Account          Account          `xml:"account"`
-		ShippingAdddress ShippingAdddress `xml:"shipping_address"`
+		Account          Account          `xml:"account" json:"account"`
+		ShippingAdddress ShippingAdddress `xml:"shipping_address" json:"shipping_address"`
 	}
 
 	UpdatedShippingAddressNotification struct {
-		Account          Account          `xml:"account"`
-		ShippingAdddress ShippingAdddress `xml:"shipping_address"`
+		Account          Account          `xml:"account" json:"account"`
+		ShippingAdddress ShippingAdddress `xml:"shipping_address" json:"shipping_address"`
 	}
 
 	DeletedShippingAddressNotification struct {
-		Account          Account          `xml:"account"`
-		ShippingAdddress ShippingAdddress `xml:"shipping_address"`
+		Account          Account          `xml:"account" json:"account"`
+		ShippingAdddress ShippingAdddress `xml:"shipping_address" json:"shipping_address"`
 	}
 )
 
 type NewDunningEventNotification struct {
-	Account     Account              `xml:"account"`
-	Invoice     Invoice              `xml:"invoice"`
-	Subsription recurly.Subscription `xml:"subscription"`
-	Transaction Transaction          `xml:"transaction"`
+	Account     Account              `xml:"account" json:"account"`
+	Invoice     Invoice              `xml:"invoice" json:"invoice"`
+	Subsription recurly.Subscription `xml:"subscription" json:"subscription"`
+	Transaction Transaction          `xml:"transaction" json:"transaction"`
 }
 
 // ErrUnknownNotification is used when the incoming webhook does not match a
@@ -265,8 +284,13 @@ func (e ErrUnknownNotification) Name() string {
 	return e.name
 }
 
+type ParseResponse struct {
+	Message string
+	Data    interface{}
+}
+
 // Parse parses an incoming webhook and returns the notification.
-func Parse(r io.Reader) (interface{}, error) {
+func Parse(r io.Reader) (*ParseResponse, error) {
 	if closer, ok := r.(io.Closer); ok {
 		defer closer.Close()
 	}
@@ -283,6 +307,12 @@ func Parse(r io.Reader) (interface{}, error) {
 
 	var dst interface{}
 	switch n.XMLName.Local {
+	case NewAccount:
+		dst = &NewAccountNotification{}
+	case UpdatedAccount:
+		dst = &UpdatedAccountNotification{}
+	case ReactivatedSubscription:
+		dst = &ReactivatedAccountNotification{}
 	case BillingInfoUpdated:
 		dst = &BillingInfoUpdatedNotification{}
 	case NewSubscription:
@@ -301,6 +331,8 @@ func Parse(r io.Reader) (interface{}, error) {
 		dst = &PastDueInvoiceNotification{}
 	case ProcessingInvoice:
 		dst = &ProcessingInvoiceNotification{}
+	case ClosedInvoice:
+		dst = &ClosedInvoiceNotification{}
 	case SuccessfulPayment:
 		dst = &SuccessfulPaymentNotification{}
 	case FailedPayment:
@@ -325,5 +357,9 @@ func Parse(r io.Reader) (interface{}, error) {
 		return nil, err
 	}
 
-	return dst, nil
+	response := &ParseResponse{
+		Message: n.XMLName.Local,
+		Data:    dst,
+	}
+	return response, nil
 }
