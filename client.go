@@ -29,16 +29,19 @@ type Client struct {
 	BaseURL string
 
 	// Services used for talking with different parts of the Recurly API
-	Accounts      AccountsService
-	Adjustments   AdjustmentsService
-	Billing       BillingService
-	Coupons       CouponsService
-	Redemptions   RedemptionsService
-	Invoices      InvoicesService
-	Plans         PlansService
-	AddOns        AddOnsService
-	Subscriptions SubscriptionsService
-	Transactions  TransactionsService
+	Accounts          AccountsService
+	Adjustments       AdjustmentsService
+	Billing           BillingService
+	Coupons           CouponsService
+	Redemptions       RedemptionsService
+	Invoices          InvoicesService
+	Plans             PlansService
+	AddOns            AddOnsService
+	ShippingAddresses ShippingAddressesService
+	Subscriptions     SubscriptionsService
+	Transactions      TransactionsService
+	CreditPayments    CreditPaymentsService
+	Purchases         PurchasesService
 }
 
 // NewClient returns a new instance of *Client.
@@ -64,7 +67,10 @@ func NewClient(subDomain, apiKey string, httpClient *http.Client) *Client {
 	client.Plans = &plansImpl{client: client}
 	client.AddOns = &addOnsImpl{client: client}
 	client.Subscriptions = &subscriptionsImpl{client: client}
+	client.ShippingAddresses = &shippingAddressesImpl{client: client}
 	client.Transactions = &transactionsImpl{client: client}
+	client.CreditPayments = &creditInvoicesImpl{client: client}
+	client.Purchases = &purchasesImpl{client: client}
 
 	return client
 }
@@ -102,14 +108,14 @@ func (c *Client) newRequest(method string, action string, params Params, body in
 	// identifying bugs or updates needed in the library.
 	// https://github.com/blacklightcms/recurly/issues/41
 	req.Header.Set("User-Agent", fmt.Sprintf(
-		"Blacklight/2017-09-09; Go (%s) [%s-%s]",
+		"Blacklight/2018-06-05; Go (%s) [%s-%s]",
 		runtime.Version(),
 		runtime.GOARCH,
 		runtime.GOOS,
 	))
 	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", c.apiKey))
 	req.Header.Set("Accept", "application/xml")
-	req.Header.Set("X-Api-Version", "2.5")
+	req.Header.Set("X-Api-Version", "2.13")
 	if req.Method == "POST" || req.Method == "PUT" {
 		req.Header.Set("Content-Type", "application/xml; charset=utf-8")
 	}

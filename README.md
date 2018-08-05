@@ -3,6 +3,9 @@ Recurly is a Go (golang) API Client for the [Recurly](https://recurly.com/) API.
 
  [![Build Status](https://travis-ci.org/blacklightcms/recurly.svg?branch=master)](https://travis-ci.org/blacklightcms/recurly)  [![GoDoc](https://godoc.org/github.com/blacklightcms/recurly?status.svg)](https://godoc.org/github.com/blacklightcms/recurly)
 
+## Announcement: Credit Invoice Release 
+As of v2.10, Recurly has released data structure and API changes to support the [credit invoice release](https://docs.recurly.com/docs/credit-invoices-release). All sites created after May 8, 2018, have this turned on automatically. Existing sites must turn it on no later than Nov 1, 2018. New features will be applicable once the feature is turned on; legacy (existing) invoices will continue to use some deprecated features until they are closed. Most new code can coexist with existing, allowing you to write code to support your transition smoothly. Note that the `new_dunning_event` webhook data structure will change and both may be sent while you have both legacy and new invoices with dunning events. Please review the `Parse` and `ParseDeprecated` methods if you listen for this webhook.  Deprecated code will be removed with any library updates no earlier than December 1, 2018. 
+
 ## References
  * [API Reference](http://godoc.org/github.com/blacklightcms/recurly)
  * [Recurly API Documentation](https://dev.recurly.com/docs/)
@@ -59,15 +62,17 @@ of the services.
 
 The services are (each link to the GoDoc documentation):
  * [Accounts](https://godoc.org/github.com/blacklightcms/recurly#AccountsService)
+ * [AddOns](https://godoc.org/github.com/blacklightcms/recurly#AddOnsService)
  * [Adjustments](https://godoc.org/github.com/blacklightcms/recurly#AdjustmentsService)
  * [Billing](https://godoc.org/github.com/blacklightcms/recurly#BillingService)
  * [Coupons](https://godoc.org/github.com/blacklightcms/recurly#CouponsService)
- * [Redemptions](https://godoc.org/github.com/blacklightcms/recurly#RedemptionsService)
+ * [CreditPayments](https://godoc.org/github.com/blacklightcms/recurly#CreditPaymentsService)
  * [Invoices](https://godoc.org/github.com/blacklightcms/recurly#InvoicesService)
  * [Plans](https://godoc.org/github.com/blacklightcms/recurly#PlansService)
- * [AddOns](https://godoc.org/github.com/blacklightcms/recurly#AddOnsService)
+ * [Redemptions](https://godoc.org/github.com/blacklightcms/recurly#RedemptionsService)
  * [Subscriptions](https://godoc.org/github.com/blacklightcms/recurly#SubscriptionsService)
  * [Transactions](https://godoc.org/github.com/blacklightcms/recurly#TransactionsService)
+ * [Purchases](https://godoc.org/github.com/blacklightcms/recurly#PurchasesService)
 
 Each of the services correspond to their respective sections in the
 [Recurly API Documentation](https://dev.recurly.com/docs/).
@@ -315,7 +320,11 @@ TransactionError struct {
 Initial webhook support is in place. The following webhooks are supported:
 
 Account Notifications
+ - `NewAccountNotification`
+ - `UpdatedAccountNotification`
+ - `CanceledAccountNotification`
  - `BillingInfoUpdatedNotification`
+ - `BillingInfoUpdateFailedNotification`
 
 Subscription Notifications
  - `NewSubscriptionNotification`
@@ -323,17 +332,25 @@ Subscription Notifications
  - `RenewedSubscriptionNotification`
  - `ExpiredSubscriptionNotification`
  - `CanceledSubscriptionNotification`
+ - `ReactivatedAccountNotification`
 
  Invoice Notifications
  - `NewInvoiceNotification`
  - `PastDueInvoiceNotification`
+ - `ProcessingInvoiceNotification`
+ - `ClosedInvoiceNotification`
 
 Payment Notifications
  - `SuccessfulPaymentNotification`
  - `FailedPaymentNotification`
  - `VoidPaymentNotification`
  - `SuccessfulRefundNotification`
-
+ - `ScheduledPaymentNotification`
+ - `ProcessingPaymentNotification`
+ 
+ Dunning Event Notifications
+ - `NewDunningEventNotification`
+     
 Webhooks can be used by passing an `io.Reader` to `webhooks.Parse`, then using a switch statement with type assertions to determine the webhook returned.
 
 PRs are welcome for additional webhooks.

@@ -5,11 +5,11 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 	"time"
 
-	"github.com/portofinolabs/recurly"
+	"github.com/blacklightcms/recurly"
+	"github.com/google/go-cmp/cmp"
 )
 
 // TestPlansEncoding ensures structs are encoded to XML properly.
@@ -28,7 +28,7 @@ func TestPlans_Encoding(t *testing.T) {
 		{v: recurly.Plan{Name: "Gold plan", UnitAmountInCents: recurly.UnitAmount{USD: 1500}, IntervalUnit: "months"}, expected: "<plan><name>Gold plan</name><plan_interval_unit>months</plan_interval_unit><unit_amount_in_cents><USD>1500</USD></unit_amount_in_cents></plan>"},
 		{v: recurly.Plan{Name: "Gold plan", UnitAmountInCents: recurly.UnitAmount{USD: 1500}, IntervalLength: 1}, expected: "<plan><name>Gold plan</name><plan_interval_length>1</plan_interval_length><unit_amount_in_cents><USD>1500</USD></unit_amount_in_cents></plan>"},
 		{v: recurly.Plan{Name: "Gold plan", UnitAmountInCents: recurly.UnitAmount{USD: 1500}, TrialIntervalUnit: "days"}, expected: "<plan><name>Gold plan</name><trial_interval_unit>days</trial_interval_unit><unit_amount_in_cents><USD>1500</USD></unit_amount_in_cents></plan>"},
-		{v: recurly.Plan{Name: "Gold plan", UnitAmountInCents: recurly.UnitAmount{USD: 1500}, TrialIntervalLength: 10}, expected: "<plan><name>Gold plan</name><trial_interval_length>10</trial_interval_length><unit_amount_in_cents><USD>1500</USD></unit_amount_in_cents></plan>"},
+		{v: recurly.Plan{Name: "Gold plan", AutoRenew: true, UnitAmountInCents: recurly.UnitAmount{USD: 1500}, TrialIntervalLength: 10}, expected: "<plan><name>Gold plan</name><trial_interval_length>10</trial_interval_length><auto_renew>true</auto_renew><unit_amount_in_cents><USD>1500</USD></unit_amount_in_cents></plan>"},
 		{v: recurly.Plan{Name: "Gold plan", UnitAmountInCents: recurly.UnitAmount{USD: 1500}, IntervalUnit: "months"}, expected: "<plan><name>Gold plan</name><plan_interval_unit>months</plan_interval_unit><unit_amount_in_cents><USD>1500</USD></unit_amount_in_cents></plan>"},
 		{v: recurly.Plan{Name: "Gold plan", UnitAmountInCents: recurly.UnitAmount{USD: 1500}, SetupFeeInCents: recurly.UnitAmount{USD: 1000, EUR: 800}}, expected: "<plan><name>Gold plan</name><unit_amount_in_cents><USD>1500</USD></unit_amount_in_cents><setup_fee_in_cents><USD>1000</USD><EUR>800</EUR></setup_fee_in_cents></plan>"},
 		{v: recurly.Plan{Name: "Gold plan", UnitAmountInCents: recurly.UnitAmount{USD: 1500}, TotalBillingCycles: recurly.NewInt(24)}, expected: "<plan><name>Gold plan</name><total_billing_cycles>24</total_billing_cycles><unit_amount_in_cents><USD>1500</USD></unit_amount_in_cents></plan>"},
@@ -107,7 +107,7 @@ func TestPlans_List(t *testing.T) {
 	}
 
 	ts, _ := time.Parse(recurly.DateTimeFormat, "2015-05-29T17:38:15Z")
-	if !reflect.DeepEqual(plans, []recurly.Plan{
+	if diff := cmp.Diff(plans, []recurly.Plan{
 		{
 			XMLName: xml.Name{Local: "plan"},
 			Code:    "gold",
@@ -131,8 +131,8 @@ func TestPlans_List(t *testing.T) {
 			},
 			CreatedAt: recurly.NewTime(ts),
 		},
-	}) {
-		t.Fatalf("unexpected plan: %v", plans)
+	}); diff != "" {
+		t.Fatal(diff)
 	}
 }
 
@@ -187,7 +187,7 @@ func TestPlans_Get(t *testing.T) {
 	}
 
 	ts, _ := time.Parse(recurly.DateTimeFormat, "2015-05-29T17:38:15Z")
-	if !reflect.DeepEqual(plan, &recurly.Plan{
+	if diff := cmp.Diff(plan, &recurly.Plan{
 		XMLName: xml.Name{Local: "plan"},
 		Code:    "gold",
 		Name:    "Gold plan",
@@ -209,8 +209,8 @@ func TestPlans_Get(t *testing.T) {
 			EUR: 800,
 		},
 		CreatedAt: recurly.NewTime(ts),
-	}) {
-		t.Fatalf("unexpected plan: %v", plan)
+	}); diff != "" {
+		t.Fatal(diff)
 	}
 }
 

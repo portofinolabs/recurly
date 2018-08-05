@@ -109,10 +109,10 @@ func (s *invoicesImpl) Preview(accountCode string) (*Response, *Invoice, error) 
 		return nil, nil, err
 	}
 
-	var dst Invoice
+	var dst InvoiceCollection
 	resp, err := s.client.do(req, &dst)
 
-	return resp, &dst, err
+	return resp, dst.ChargeInvoice, err
 }
 
 // Create posts an accounts pending charges to a new invoice on that account.
@@ -129,10 +129,10 @@ func (s *invoicesImpl) Create(accountCode string, invoice Invoice) (*Response, *
 		return nil, nil, err
 	}
 
-	var dst Invoice
+	var dst InvoiceCollection
 	resp, err := s.client.do(req, &dst)
 
-	return resp, &dst, err
+	return resp, dst.ChargeInvoice, err
 }
 
 // Collect force retries the card on file for the invoice.
@@ -181,27 +181,47 @@ func (s *invoicesImpl) MarkFailed(invoiceNumber int) (*Response, *Invoice, error
 		return nil, nil, err
 	}
 
-	var dst Invoice
+	var dst InvoiceCollection
 	resp, err := s.client.do(req, &dst)
 
-	return resp, &dst, err
+	return resp, dst.ChargeInvoice, err
 }
 
 // RefundVoidOpenAmount allows custom invoice amounts to be refunded and generates a refund invoice.
 // Full open amount refunds of invoices with an unsettled transaction will void
 // the transaction and generate a void invoice.
 // https://dev.recurly.com/docs/line-item-refunds
-func (s *invoicesImpl) RefundVoidOpenAmount(invoiceNumber int, amountInCents int, refundApplyOrder string) (*Response, *Invoice, error) {
+func (s *invoicesImpl) RefundVoidOpenAmount(invoiceNumber int, amountInCents int, refundMethod string) (*Response, *Invoice, error) {
+	switch refundMethod {
+	case VoidRefundMethodCreditFirst, VoidRefundMethodTransactionFirst: // continue
+	default:
+		refundMethod = ""
+	}
 	action := fmt.Sprintf("invoices/%d/refund", invoiceNumber)
 	data := struct {
-		XMLName          xml.Name `xml:"invoice"`
-		AmountInCents    int      `xml:"amount_in_cents,omitempty"`
-		RefundApplyOrder string   `xml:"refund_apply_order,omitempty"`
+		XMLName       xml.Name `xml:"invoice"`
+		AmountInCents int      `xml:"amount_in_cents,omitempty"`
+		RefundMethod  string   `xml:"refund_method,omitempty"`
 	}{
-		AmountInCents:    amountInCents,    // Amount is required
-		RefundApplyOrder: refundApplyOrder, // Refund Apply Order defaults to "credit" (vs "transaction")
+		AmountInCents: amountInCents, // Amount is required
+		RefundMethod:  refundMethod,  // Refund method defaults to "credit_first"
 	}
 	req, err := s.client.newRequest("POST", action, nil, data)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var dst Invoice
+	resp, err := s.client.do(req, &dst)
+
+	return resp, &dst, err
+}
+
+// VoidCreditInvoice voids a credit invoice.
+// https://dev.recurly.com/docs/void-credit-invoice
+func (s *invoicesImpl) VoidCreditInvoice(invoiceNumber int) (*Response, *Invoice, error) {
+	action := fmt.Sprintf("invoices/%d/void", invoiceNumber)
+	req, err := s.client.newRequest("PUT", action, nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
